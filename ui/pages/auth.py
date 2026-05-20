@@ -1,5 +1,14 @@
 import streamlit as st
-
+def login_user(email, password):
+    if email and password:
+        st.session_state.authenticated = True
+        st.session_state.current_user = {
+            "id": 1,
+            "name": email.split("@")[0],
+            "email": email
+        }
+        st.session_state.current_page = "dashboard"
+        st.rerun()
 def render():
     st.markdown("""
         <div style="text-align:center; padding:18px 10px; margin-top: 2rem;">
