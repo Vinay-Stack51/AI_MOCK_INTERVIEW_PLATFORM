@@ -1,9 +1,10 @@
 import streamlit as st
 from datetime import datetime
-from state_manager import (
-    reset_interview, STRIPS_AVAILABLE, PROLOG_AVAILABLE,
-    MINIMAX_AVAILABLE, WUMPUS_AVAILABLE
-)
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
+from ui.state_manager import *
 from interview_planner_csp import ConstraintSatisfactionPlanner
 
 # Import STRIPS planner for session initialization
