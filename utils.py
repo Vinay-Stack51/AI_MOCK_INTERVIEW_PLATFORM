@@ -18,7 +18,7 @@ from google import genai
 import time
 
 load_dotenv(override=True)
-gemini_api_key = st.secrets("GEMINI_API_KEY")
+gemini_api_key = st.secrets["GEMINI_API_KEY"]
 client = None
 if gemini_api_key:
     client = genai.Client(api_key=gemini_api_key)
