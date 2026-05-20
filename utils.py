@@ -18,15 +18,13 @@ from google import genai
 import time
 
 load_dotenv(override=True)
-gemini_api_key = os.getenv("GEMINI_API_KEY")
+gemini_api_key = st.getenv("GEMINI_API_KEY")
 client = None
 if gemini_api_key:
     client = genai.Client(api_key=gemini_api_key)
-print("DEBUG KEY:", gemini_api_key)
 GEMINI_MODEL = "models/gemini-2.5-flash"
 GEMINI_FALLBACK = "models/gemini-2.5-pro"
-for m in client.models.list():
-    print(m.name)
+
 def call_gemini(prompt: str, feature_name: str = "Unknown") -> Optional[str]:
     """
     Safely calls Gemini API using the new google-genai SDK.
