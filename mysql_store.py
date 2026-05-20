@@ -27,12 +27,12 @@ BCRYPT_SALT_MARKER = "bcrypt"
 
 class MySQLStore:
     def __init__(self):
-        self.host = st.secrets("MYSQL_HOST", "localhost")
-        self.port = int(st.secrets("MYSQL_PORT", "3306"))
-        self.user = st.secrets("MYSQL_USER", "root")
-        self.password = st.secrets("MYSQL_PASSWORD", "")
-        self.database = st.secrets("MYSQL_DATABASE", "ai_interview_coach")
-        self.enabled = st.secrets("MYSQL_ENABLED", "true").lower() == "true"
+        self.host = st.secrets.get("MYSQL_HOST", "localhost")
+        self.port = int(st.secrets.get("MYSQL_PORT", "3306"))
+        self.user = st.secrets.get("MYSQL_USER", "root")
+        self.password = st.secrets.get("MYSQL_PASSWORD", "")
+        self.database = st.secrets.get("MYSQL_DATABASE", "ai_interview_coach")
+        self.enabled = st.secrets.get("MYSQL_ENABLED", "true").lower() == "true"
 
     def _connect(self, with_database: bool = True):
         if mysql is None:
