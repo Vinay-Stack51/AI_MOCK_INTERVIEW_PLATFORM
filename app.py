@@ -11,7 +11,7 @@ st.set_page_config(
 # Import dependencies after page config
 from ui.state_manager import init_session_state
 from ui.components.layout import render_global_css, render_sidebar, inject_animations
-from ui import pages
+from ui.pages import auth, dashboard, start_interview, session, feedback, history, settings
 
 # Initialize State
 init_session_state()
