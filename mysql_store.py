@@ -4,7 +4,7 @@ MySQL persistence layer for authentication and interview records.
 
 import hashlib
 import json
-import os
+import streamlit as st
 import secrets
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
@@ -27,12 +27,12 @@ BCRYPT_SALT_MARKER = "bcrypt"
 
 class MySQLStore:
     def __init__(self):
-        self.host = os.getenv("MYSQL_HOST", "localhost")
-        self.port = int(os.getenv("MYSQL_PORT", "3306"))
-        self.user = os.getenv("MYSQL_USER", "root")
-        self.password = os.getenv("MYSQL_PASSWORD", "")
-        self.database = os.getenv("MYSQL_DATABASE", "ai_interview_coach")
-        self.enabled = os.getenv("MYSQL_ENABLED", "true").lower() == "true"
+        self.host = st.getenv("MYSQL_HOST", "localhost")
+        self.port = int(st.getenv("MYSQL_PORT", "3306"))
+        self.user = st.getenv("MYSQL_USER", "root")
+        self.password = st.getenv("MYSQL_PASSWORD", "")
+        self.database = st.getenv("MYSQL_DATABASE", "ai_interview_coach")
+        self.enabled = st.getenv("MYSQL_ENABLED", "true").lower() == "true"
 
     def _connect(self, with_database: bool = True):
         if mysql is None:
