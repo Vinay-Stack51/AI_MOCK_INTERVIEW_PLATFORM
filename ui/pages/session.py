@@ -5,10 +5,11 @@ import html as _html
 from utils import (
     text_to_speech_autoplay, speech_to_text, get_difficulty_level
 )
-from ui.state_manager import (
-    get_elapsed_time, process_answer, persist_completed_interview,
-    STRIPS_AVAILABLE, PROLOG_AVAILABLE
-)
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
+from ui.state_manager import *
 from ui.components.media import render_avatar_panel, render_camera_pane
 
 # Setup the audio recorder globally within the module scope
