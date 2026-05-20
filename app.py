@@ -34,19 +34,19 @@ render_sidebar()
 
 # Render appropriate page module
 if current_page == 'auth':
-    pages.auth.render()
+    auth.render()
 elif current_page == 'dashboard':
-    pages.dashboard.render()
+    dashboard.render()
 elif current_page == 'start_interview':
-    pages.start_interview.render()
+    start_interview.render()
 elif current_page == 'session':
-    pages.session.render()
+    session.render()
 elif current_page == 'feedback':
-    pages.feedback.render()
+    feedback.render()
 elif current_page == 'history':
-    pages.history.render()
+    history.render()
 elif current_page == 'settings':
-    pages.settings.render()
+    settings.render()
 else:
     st.error("Page not found. Please navigate from the sidebar.")
 
