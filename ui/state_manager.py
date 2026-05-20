@@ -49,9 +49,13 @@ def init_session_state():
     # ---------------- MYSQL SAFE INIT ----------------
     try:
         st.session_state.mysql_store = MySQLStore()
-        ok, msg = st.session_state.mysql_store.initialize()
-        st.session_state.db_ready = ok
-        st.session_state.db_message = msg
+        if st.session_state.mysql_store.enabled:
+            ok, msg = st.session_state.mysql_store.initialize()
+            st.session_state.db_ready = ok
+            st.session_state.db_message = msg
+        else:
+            st.session_state.db_ready = True   # 🔥 IMPORTANT FIX
+            st.session_state.db_message = "Running in demo mode (No DB)"
     except Exception as e:
         st.session_state.mysql_store = None
         st.session_state.db_ready = False
