@@ -10,12 +10,12 @@ from mysql_store import MySQLStore
 
 def init_session_state():
 
-    if "initialized" in st.session_state:
+    if st.session_state.get("initialized", False):
         return
 
-    # ---------------- CORE OBJECTS ----------------
     st.session_state.initialized = True
 
+    # ---------------- CORE MODULES ----------------
     st.session_state.kb = KnowledgeBase()
     st.session_state.selector = QuestionSelector(st.session_state.kb)
     st.session_state.evaluator = AnswerEvaluator(st.session_state.kb)
@@ -41,36 +41,46 @@ def init_session_state():
 
     st.session_state.user_profile = {}
 
-    # ---------------- ADVANCED ALGO STATE ----------------
+    # ---------------- ADVANCED FEATURES ----------------
     st.session_state.strips_planner = None
     st.session_state.prolog_kb = None
     st.session_state.planned_questions = []
 
-    # ---------------- MYSQL SAFE INIT ----------------
+    # ---------------- MYSQL (SAFE MODE) ----------------
+    st.session_state.mysql_store = None
+    st.session_state.db_ready = False
+    st.session_state.db_message = "Not initialized"
+
     try:
-        st.session_state.mysql_store = MySQLStore()
-        if st.session_state.mysql_store.enabled:
-            ok, msg = st.session_state.mysql_store.initialize()
+        store = MySQLStore()
+
+        # If user explicitly disabled DB → demo mode
+        if hasattr(store, "enabled") and not store.enabled:
+            st.session_state.mysql_store = None
+            st.session_state.db_ready = True
+            st.session_state.db_message = "Running in DEMO mode (MySQL disabled)"
+        else:
+            ok, msg = store.initialize()
+            st.session_state.mysql_store = store
             st.session_state.db_ready = ok
             st.session_state.db_message = msg
-        else:
-            st.session_state.db_ready = True   # 🔥 IMPORTANT FIX
-            st.session_state.db_message = "Running in demo mode (No DB)"
+
     except Exception as e:
         st.session_state.mysql_store = None
         st.session_state.db_ready = False
-        st.session_state.db_message = str(e)
+        st.session_state.db_message = f"MySQL error: {str(e)}"
 
     # ---------------- AUTH ----------------
     st.session_state.authenticated = False
     st.session_state.current_user = None
     st.session_state.current_session_id = None
 
-    # ---------------- UI STATE ----------------
+    # ---------------- UI ----------------
     st.session_state.current_page = "auth"
     st.session_state.theme = "light"
 
 
+# ---------------- RESET INTERVIEW ----------------
 def reset_interview():
 
     st.session_state.interview_active = False
@@ -89,47 +99,46 @@ def reset_interview():
     st.session_state.mic_muted = False
     st.session_state.cam_off = False
 
-    st.session_state.intro_message = None
-    st.session_state.wrapup_started = False
     st.session_state.planned_questions = []
     st.session_state.current_session_id = None
 
-    # reset advanced modules
     st.session_state.strips_planner = None
     st.session_state.prolog_kb = None
 
-    # remove cached keys
     for key in list(st.session_state.keys()):
-        if str(key).startswith("tts_cache_") or str(key).startswith("instant_tip_"):
+        if key.startswith("tts_cache_") or key.startswith("instant_tip_"):
             st.session_state.pop(key, None)
 
     st.session_state.selector.reset_history()
 
 
-def get_elapsed_time() -> str:
+# ---------------- TIMER ----------------
+def get_elapsed_time():
     if not st.session_state.interview_start_time:
         return "00:00"
 
     delta = datetime.now() - st.session_state.interview_start_time
-    mins = int(delta.total_seconds() // 60)
-    secs = int(delta.total_seconds() % 60)
-
-    return f"{mins:02d}:{secs:02d}"
+    return f"{int(delta.total_seconds() // 60):02d}:{int(delta.total_seconds() % 60):02d}"
 
 
+# ---------------- SAVE INTERVIEW ----------------
 def persist_completed_interview():
     if (
         st.session_state.get("db_ready")
+        and st.session_state.get("mysql_store")
         and st.session_state.get("current_session_id")
         and st.session_state.get("report")
-        and st.session_state.get("mysql_store")
     ):
-        st.session_state.mysql_store.complete_interview_session(
-            st.session_state.current_session_id,
-            st.session_state.report
-        )
+        try:
+            st.session_state.mysql_store.complete_interview_session(
+                st.session_state.current_session_id,
+                st.session_state.report
+            )
+        except Exception:
+            pass
 
 
+# ---------------- PROCESS ANSWER ----------------
 def process_answer(answer_text: str):
 
     q = st.session_state.current_question
@@ -153,19 +162,28 @@ def process_answer(answer_text: str):
     st.session_state.question_history.append(q["id"])
     st.session_state.instant_feedback = feedback
 
-    if st.session_state.get("db_ready") and st.session_state.get("current_session_id"):
-        st.session_state.mysql_store.save_answer_record(
-            st.session_state.current_session_id,
-            record
-        )
+    # Save to DB only if enabled
+    if (
+        st.session_state.get("db_ready")
+        and st.session_state.get("mysql_store")
+        and st.session_state.get("current_session_id")
+    ):
+        try:
+            st.session_state.mysql_store.save_answer_record(
+                st.session_state.current_session_id,
+                record
+            )
+        except Exception:
+            pass
 
     st.session_state.selector.update_performance(
         q["id"], feedback["score"], q.get("topic", "general")
     )
 
-    total_q = 10
+    # Move to next question or end interview
+    TOTAL_Q = 10
 
-    if len(st.session_state.answer_history) >= total_q:
+    if len(st.session_state.answer_history) >= TOTAL_Q:
         st.session_state.interview_stage = "wrapup"
         st.session_state.current_question = None
         return
