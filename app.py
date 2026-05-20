@@ -3,7 +3,7 @@ import streamlit as st
 # Setup page config first
 st.set_page_config(
     page_title="AI Interview Coach — Professional",
-    page_icon="🎯",
+    page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -54,10 +54,9 @@ else:
 st.markdown("---")
 st.markdown("""
     <div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;">
-        <p style="margin:0;">🎯 AI Interview Coach — Professional Edition</p>
+        <p style="margin:0;">🤖 AI Interview Coach — Professional Edition</p>
         <p style="font-size:0.78rem; margin-top:0.4rem;">
             Powered by Best-First Search · Forward-Chaining Evaluation · FOL Engine · STRIPS Planner<br>
-            Built with ❤️ for serious interview preparation
         </p>
     </div>
 """, unsafe_allow_html=True)
