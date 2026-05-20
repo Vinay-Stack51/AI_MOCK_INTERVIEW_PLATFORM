@@ -1,6 +1,6 @@
 import streamlit as st
 from datetime import datetime
-from ..state_manager import (
+from state_manager import (
     reset_interview, STRIPS_AVAILABLE, PROLOG_AVAILABLE,
     MINIMAX_AVAILABLE, WUMPUS_AVAILABLE
 )
